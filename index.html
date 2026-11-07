@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pour log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Pour log</h1>
+  <p class="sub">Beans, recipe, gear and how it tasted, one pour at a time.</p>
+  <nav role="tablist" id="tabs"></nav>
+
+  <section id="log">
+    <form id="pourForm">
+      <label>Date<input type="date" name="date" required></label>
+      <label>Beans<select name="bean"></select></label>
+      <label>Recipe<select name="recipe"></select></label>
+      <div class="hint full" id="recipeHint" hidden></div>
+      <label>Grinder<select name="grinder"></select></label>
+      <label>Dripper<select name="dripper"></select></label>
+      <label>Filter paper<select name="filter"></select></label>
+      <label>Kettle<select name="kettle"></select></label>
+      <label>Grind setting<input name="grind" placeholder="e.g. 22 clicks"></label>
+      <label>Rating<select name="rating"><option value="">Not rated</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
+      <label class="full">Tasting notes<textarea name="notes" placeholder="Sweet, a little sour, finished fast…"></textarea></label>
+      <button class="btn" type="submit">Save pour</button>
+    </form>
+    <h2>History</h2>
+    <ul class="list" id="pours"></ul>
+  </section>
+
+  <section id="calendar" hidden>
+    <div class="calhead">
+      <h2 id="calTitle"></h2>
+      <button class="btn ghost" type="button" data-cal="prev" aria-label="Previous month">Prev</button>
+      <button class="btn ghost" type="button" data-cal="today">Today</button>
+      <button class="btn ghost" type="button" data-cal="next" aria-label="Next month">Next</button>
+    </div>
+    <p class="sub" id="calSummary"></p>
+    <div class="calgrid" id="calGrid"></div>
+    <h2 id="calDayTitle"></h2>
+    <ul class="list" id="calDayList"></ul>
+    <p><button class="btn" type="button" data-logday>Log a pour on this day</button></p>
+  </section>
+
+  <section id="pantry" hidden>
+    <form data-kind="beans">
+      <label>Name<input name="name" required placeholder="Ethiopia Guji"></label>
+      <label>Roaster<input name="roaster"></label>
+      <label>Origin / process<input name="origin" placeholder="Washed, 2000 m"></label>
+      <label>Roast date<input type="date" name="roasted"></label>
+      <button class="btn" type="submit">Add to pantry</button>
+    </form>
+    <h2>In your pantry</h2>
+    <ul class="list" id="beansList"></ul>
+  </section>
+
+  <section id="recipes" hidden>
+    <form data-kind="recipes">
+      <label>Name<input name="name" required placeholder="Morning V60"></label>
+      <label>Coffee (g)<input type="number" step="0.1" name="dose" required></label>
+      <label>Water (g)<input type="number" step="1" name="water" required></label>
+      <label>Water temp (°C)<input type="number" name="temp"></label>
+      <label>Total time<input name="time" placeholder="2:45"></label>
+      <label class="full">Method<textarea name="method" placeholder="Bloom 45 g for 40 s, then pour in three stages…"></textarea></label>
+      <button class="btn" type="submit">Add recipe</button>
+    </form>
+    <h2>Recipe book</h2>
+    <ul class="list" id="recipesList"></ul>
+  </section>
+
+  <section id="gear" hidden>
+    <form data-kind="gear">
+      <label>Name<input name="name" required placeholder="Hario V60 02"></label>
+      <label>Type<select name="type"><option>Grinder</option><option>Dripper</option><option>Filter paper</option><option>Kettle</option></select></label>
+      <button class="btn" type="submit">Add equipment</button>
+    </form>
+    <h2>Your equipment</h2>
+    <ul class="list" id="gearList"></ul>
+  </section>
+
+  <div class="tools">
+    <button class="btn ghost" id="export" type="button">Export backup</button>
+    <button class="btn ghost" id="importBtn" type="button">Import backup</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
