@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pour log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f5f2;--surface:#fff;--ink:#1b2a2c;--muted:#5e6e70;--line:#d5dcd8;--accent:#2d5b70;--accent-ink:#fff;--crema:#b9701f;--danger:#a3382d}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121a1b;--surface:#1a2425;--ink:#e6ece9;--muted:#93a4a5;--line:#2c3a3b;--accent:#6fb0cc;--accent-ink:#0d1516;--crema:#e0a14f;--danger:#e07a6e}}
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Instrument Sans",system-ui,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 64px}
+h1{font:700 2rem/1.1 "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 4px;letter-spacing:-.02em}
+h2{font:700 1.25rem "Bricolage Grotesque",system-ui,sans-serif;margin:28px 0 10px}
+.sub{color:var(--muted);margin:0 0 20px}
+nav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px;overflow-x:auto}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font:inherit;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
+nav button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--crema)}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:.875rem;font-weight:500;color:var(--muted)}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 10px;width:100%}
+textarea{resize:vertical;min-height:70px}
+.full{grid-column:1/-1}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-weight:600;background:var(--accent);color:var(--accent-ink);border:0;border-radius:6px;padding:10px 18px;cursor:pointer;justify-self:start}
+.btn.ghost{background:none;color:var(--accent);border:1px solid var(--line)}
+.x{background:none;border:0;color:var(--danger);cursor:pointer;font:inherit;padding:4px 8px}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.list li:last-child{border-bottom:1px solid var(--line)}
+.t{font-weight:600}.m{color:var(--muted);font-size:.9rem}
+.rate{color:var(--crema);font-weight:600;white-space:nowrap}
+.hint{background:var(--surface);border:1px dashed var(--line);border-radius:6px;padding:10px 12px;color:var(--muted);font-size:.9rem}
+.empty{color:var(--muted);padding:14px 0}
+.tools{display:flex;gap:8px;margin-top:32px;flex-wrap:wrap}
+.calhead{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.calhead h2{margin:0;flex:1}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dow{font-size:.8rem;color:var(--muted);text-align:center;padding:4px 0}
+.day{position:relative;min-height:58px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;justify-content:space-between}
+.day b{align-self:flex-end;background:var(--crema);color:#fff;border-radius:99px;min-width:22px;height:22px;display:grid;place-items:center;font-size:.8rem}
+.day.today span{font-weight:700;text-decoration:underline;text-decoration-color:var(--crema);text-underline-offset:3px}
+.day[aria-pressed=true]{border:2px solid var(--accent)}
+@media (max-width:480px){.day{min-height:48px;padding:4px}}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:no-preference){nav button{transition:color .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pour log</h1>
+  <p class="sub">Beans, recipe, gear and how it tasted, one pour at a time.</p>
+  <nav role="tablist" id="tabs"></nav>
+
+  <section id="log">
+    <form id="pourForm">
+      <label>Date<input type="date" name="date" required></label>
+      <label>Beans<select name="bean"></select></label>
+      <label>Recipe<select name="recipe"></select></label>
+      <div class="hint full" id="recipeHint" hidden></div>
+      <label>Grinder<select name="grinder"></select></label>
+      <label>Dripper<select name="dripper"></select></label>
+      <label>Filter paper<select name="filter"></select></label>
+      <label>Kettle<select name="kettle"></select></label>
+      <label>Grind setting<input name="grind" placeholder="e.g. 22 clicks"></label>
+      <label>Rating<select name="rating"><option value="">Not rated</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
+      <label class="full">Tasting notes<textarea name="notes" placeholder="Sweet, a little sour, finished fast…"></textarea></label>
+      <button class="btn" type="submit">Save pour</button>
+    </form>
+    <h2>History</h2>
+    <ul class="list" id="pours"></ul>
+  </section>
+
+  <section id="calendar" hidden>
+    <div class="calhead">
+      <h2 id="calTitle"></h2>
+      <button class="btn ghost" type="button" data-cal="prev" aria-label="Previous month">Prev</button>
+      <button class="btn ghost" type="button" data-cal="today">Today</button>
+      <button class="btn ghost" type="button" data-cal="next" aria-label="Next month">Next</button>
+    </div>
+    <p class="sub" id="calSummary"></p>
+    <div class="calgrid" id="calGrid"></div>
+    <h2 id="calDayTitle"></h2>
+    <ul class="list" id="calDayList"></ul>
+    <p><button class="btn" type="button" data-logday>Log a pour on this day</button></p>
+  </section>
+
+  <section id="pantry" hidden>
+    <form data-kind="beans">
+      <label>Name<input name="name" required placeholder="Ethiopia Guji"></label>
+      <label>Roaster<input name="roaster"></label>
+      <label>Origin / process<input name="origin" placeholder="Washed, 2000 m"></label>
+      <label>Roast date<input type="date" name="roasted"></label>
+      <button class="btn" type="submit">Add to pantry</button>
+    </form>
+    <h2>In your pantry</h2>
+    <ul class="list" id="beansList"></ul>
+  </section>
+
+  <section id="recipes" hidden>
+    <form data-kind="recipes">
+      <label>Name<input name="name" required placeholder="Morning V60"></label>
+      <label>Coffee (g)<input type="number" step="0.1" name="dose" required></label>
+      <label>Water (g)<input type="number" step="1" name="water" required></label>
+      <label>Water temp (°C)<input type="number" name="temp"></label>
+      <label>Total time<input name="time" placeholder="2:45"></label>
+      <label class="full">Method<textarea name="method" placeholder="Bloom 45 g for 40 s, then pour in three stages…"></textarea></label>
+      <button class="btn" type="submit">Add recipe</button>
+    </form>
+    <h2>Recipe book</h2>
+    <ul class="list" id="recipesList"></ul>
+  </section>
+
+  <section id="gear" hidden>
+    <form data-kind="gear">
+      <label>Name<input name="name" required placeholder="Hario V60 02"></label>
+      <label>Type<select name="type"><option>Grinder</option><option>Dripper</option><option>Filter paper</option><option>Kettle</option></select></label>
+      <button class="btn" type="submit">Add equipment</button>
+    </form>
+    <h2>Your equipment</h2>
+    <ul class="list" id="gearList"></ul>
+  </section>
+
+  <div class="tools">
+    <button class="btn ghost" id="export" type="button">Export backup</button>
+    <button class="btn ghost" id="importBtn" type="button">Import backup</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </div>
+</div>
+
+<script>
+const KEY = "pour-log-v1";
+const TABS = [["log","Log a pour"],["calendar","Calendar"],["pantry","Pantry"],["recipes","Recipe book"],["gear","Equipment"]];
+let db = { beans: [], recipes: [], gear: [], pours: [] };
+try { db = Object.assign(db, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} };
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const GEAR = { grinder: "Grinder", dripper: "Dripper", filter: "Filter paper", kettle: "Kettle" };
+
+// Tabs
+const tabs = $("#tabs");
+TABS.forEach(([id, label], i) => {
+  const b = document.createElement("button");
+  b.textContent = label; b.setAttribute("role", "tab"); b.dataset.id = id;
+  b.onclick = () => show(id);
+  tabs.append(b);
+});
+function show(id) {
+  TABS.forEach(([t]) => $("#" + t).hidden = t !== id);
+  tabs.querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", b.dataset.id === id));
+  try { history.replaceState(null, "", "#" + id); } catch (e) { /* sandboxed preview: skip URL update */ }
+}
+
+// Dropdowns
+function opts(items, label, fn) {
+  return `<option value="">${label}</option>` + items.map(x => `<option value="${x.id}">${esc(fn(x))}</option>`).join("");
+}
+function fillSelects() {
+  const f = $("#pourForm");
+  const keep = n => f[n].value;
+  const prev = ["bean", "recipe", ...Object.keys(GEAR)].map(keep);
+  f.bean.innerHTML = opts(db.beans, db.beans.length ? "Choose beans" : "Add beans in Pantry first", b => b.name + (b.roaster ? " – " + b.roaster : ""));
+  f.recipe.innerHTML = opts(db.recipes, db.recipes.length ? "Choose a recipe" : "No recipes yet", r => r.name);
+  Object.entries(GEAR).forEach(([k, type]) => {
+    const items = db.gear.filter(g => g.type === type);
+    f[k].innerHTML = opts(items, items.length ? "Choose" : "None added", g => g.name);
+  });
+  ["bean", "recipe", ...Object.keys(GEAR)].forEach((n, i) => { f[n].value = prev[i]; });
+  recipeHint();
+}
+function recipeHint() {
+  const r = db.recipes.find(x => x.id === $("#pourForm").recipe.value), h = $("#recipeHint");
+  h.hidden = !r;
+  if (r) h.textContent = recipeLine(r) + (r.method ? " — " + r.method : "");
+}
+$("#pourForm").recipe.onchange = recipeHint;
+const recipeLine = r => `${r.dose} g coffee, ${r.water} g water (1:${(r.water / r.dose).toFixed(1)})` + (r.temp ? `, ${r.temp}°C` : "") + (r.time ? `, ${r.time}` : "");
+
+// Rendering
+const row = (title, meta, kind, id, extra = "") =>
+  `<li><div><div class="t">${title}</div><div class="m">${meta}</div></div><div>${extra}<button class="x" data-del="${kind}:${id}" aria-label="Delete">Delete</button></div></li>`;
+function pourRow(p) {
+  const gear = Object.keys(GEAR).map(k => p[k]).filter(Boolean).join(", ");
+  const meta = [p.date, p.recipe, gear, p.grind && "grind " + p.grind].filter(Boolean).map(esc).join(" · ") + (p.notes ? `<br>${esc(p.notes)}` : "");
+  return row(esc(p.bean || "Unknown beans"), meta, "pours", p.id, p.rating ? `<span class="rate">${p.rating}/5</span>` : "");
+}
+function render() {
+  $("#beansList").innerHTML = db.beans.map(b => row(esc(b.name), esc([b.roaster, b.origin, b.roasted && "roasted " + b.roasted].filter(Boolean).join(", ")), "beans", b.id)).join("") || `<li class="empty">Nothing here yet. Add the beans you have on hand.</li>`;
+  $("#recipesList").innerHTML = db.recipes.map(r => row(esc(r.name), esc(recipeLine(r)) + (r.method ? "<br>" + esc(r.method) : ""), "recipes", r.id)).join("") || `<li class="empty">No recipes yet. Add your first one above.</li>`;
+  $("#gearList").innerHTML = db.gear.map(g => row(esc(g.name), esc(g.type), "gear", g.id)).join("") || `<li class="empty">No equipment yet. Add your grinder, dripper and filters.</li>`;
+  $("#pours").innerHTML = [...db.pours].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)).map(pourRow).join("") || `<li class="empty">No pours logged yet. Save your first one above.</li>`;
+  fillSelects();
+  renderCal();
+}
+
+// Calendar (several pours can share one day)
+let calMonth = new Date(); calMonth.setDate(1);
+let calSel = new Date().toLocaleDateString("en-CA");
+function renderCal() {
+  const y = calMonth.getFullYear(), m = calMonth.getMonth();
+  const iso = d => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  const counts = {};
+  db.pours.forEach(p => counts[p.date] = (counts[p.date] || 0) + 1);
+  const total = Object.entries(counts).filter(([d]) => d.startsWith(iso(1).slice(0, 7))).reduce((a, [, n]) => a + n, 0);
+  $("#calTitle").textContent = calMonth.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  $("#calSummary").textContent = total ? `${total} ${total === 1 ? "pour" : "pours"} this month.` : "No pours this month yet.";
+  let h = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => `<div class="dow">${d}</div>`).join("");
+  for (let i = 0; i < new Date(y, m, 1).getDay(); i++) h += "<div></div>";
+  const now = new Date().toLocaleDateString("en-CA");
+  for (let d = 1; d <= new Date(y, m + 1, 0).getDate(); d++) {
+    const k = iso(d), n = counts[k] || 0;
+    h += `<button type="button" class="day${k === now ? " today" : ""}" data-day="${k}" aria-pressed="${k === calSel}" aria-label="${k}, ${n} ${n === 1 ? "pour" : "pours"}"><span>${d}</span>${n ? `<b>${n}</b>` : ""}</button>`;
+  }
+  $("#calGrid").innerHTML = h;
+  $("#calDayTitle").textContent = new Date(calSel + "T00:00").toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+  $("#calDayList").innerHTML = db.pours.filter(p => p.date === calSel).sort((a, b) => a.id.localeCompare(b.id)).map(pourRow).join("") || `<li class="empty">No pours on this day.</li>`;
+}
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-day],[data-cal],[data-logday]"); if (!t) return;
+  if (t.dataset.day) { calSel = t.dataset.day; }
+  else if (t.dataset.cal === "prev") calMonth.setMonth(calMonth.getMonth() - 1);
+  else if (t.dataset.cal === "next") calMonth.setMonth(calMonth.getMonth() + 1);
+  else if (t.dataset.cal === "today") { calMonth = new Date(); calMonth.setDate(1); calSel = new Date().toLocaleDateString("en-CA"); }
+  else if (t.hasAttribute("data-logday")) { pf.date.value = calSel; show("log"); return; }
+  renderCal();
+});
+
+// Add forms (pantry, recipes, gear)
+document.querySelectorAll("form[data-kind]").forEach(f => f.onsubmit = e => {
+  e.preventDefault();
+  db[f.dataset.kind].push({ id: uid(), ...Object.fromEntries(new FormData(f)) });
+  save(); f.reset(); render();
+});
+
+// Log a pour (stores names too, so history survives deleting a pantry item)
+const pf = $("#pourForm");
+const today = () => new Date().toLocaleDateString("en-CA");
+pf.date.value = today();
+pf.onsubmit = e => {
+  e.preventDefault();
+  const name = (list, id) => (db[list].find(x => x.id === id) || {}).name || "";
+  const p = { id: uid(), date: pf.date.value, bean: name("beans", pf.bean.value), recipe: name("recipes", pf.recipe.value), grind: pf.grind.value, rating: pf.rating.value, notes: pf.notes.value };
+  Object.keys(GEAR).forEach(k => p[k] = name("gear", pf[k].value));
+  db.pours.push(p); save();
+  pf.grind.value = ""; pf.notes.value = ""; pf.rating.value = "";
+  render();
+};
+
+// Delete
+document.addEventListener("click", e => {
+  const d = e.target.dataset.del; if (!d) return;
+  const [kind, id] = d.split(":");
+  db[kind] = db[kind].filter(x => x.id !== id); save(); render();
+});
+
+// Backup
+$("#export").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(db, null, 2)], { type: "application/json" }));
+  a.download = "pour-log-" + today() + ".json"; a.click();
+};
+$("#importBtn").onclick = () => $("#importFile").click();
+$("#importFile").onchange = async e => {
+  try { db = Object.assign({ beans: [], recipes: [], gear: [], pours: [] }, JSON.parse(await e.target.files[0].text())); save(); render(); }
+  catch (err) { alert("That file isn't a valid pour log backup."); }
+};
+
+render();
+show(TABS.some(([t]) => "#" + t === location.hash) ? location.hash.slice(1) : "log");
+</script>
+</body>
+</html>
